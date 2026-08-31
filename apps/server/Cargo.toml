@@ -12,9 +12,9 @@ chrono.workspace = true
 futures-util.workspace = true
 hmac.workspace = true
 http.workspace = true
-iamrust-application = { path = "../../crates/application" }
-iamrust-domain = { path = "../../crates/domain" }
-iamrust-protocol = { path = "../../crates/protocol" }
+iamrust-application = { path = "../../crates/application", version = "0.1.0" }
+iamrust-domain = { path = "../../crates/domain", version = "0.1.0" }
+iamrust-protocol = { path = "../../crates/protocol", version = "0.1.0" }
 lettre.workspace = true
 opentelemetry.workspace = true
 opentelemetry-otlp.workspace = true

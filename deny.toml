@@ -1,18 +1,25 @@
 [advisories]
 version = 2
 yanked = "deny"
+# GPUI and its native desktop stack still contain unmaintained transitive crates.
+# Keep failing when an unmaintained crate becomes a direct workspace dependency.
+unmaintained = "workspace"
 
 [licenses]
 version = 2
 confidence-threshold = 0.8
 allow = [
+  "0BSD",
   "Apache-2.0",
   "Apache-2.0 WITH LLVM-exception",
   "BSD-2-Clause",
   "BSD-3-Clause",
+  "CC0-1.0",
+  "CDLA-Permissive-2.0",
   "ISC",
   "MIT",
   "MPL-2.0",
+  "NCSA",
   "Unicode-3.0",
   "Zlib",
 ]

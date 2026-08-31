@@ -15,9 +15,9 @@ chrono.workspace = true
 futures-util.workspace = true
 gpui.workspace = true
 gpui-component.workspace = true
-iamrust-client-core = { path = "../../crates/client-core" }
-iamrust-domain = { path = "../../crates/domain" }
-iamrust-protocol = { path = "../../crates/protocol" }
+iamrust-client-core = { path = "../../crates/client-core", version = "0.1.0" }
+iamrust-domain = { path = "../../crates/domain", version = "0.1.0" }
+iamrust-protocol = { path = "../../crates/protocol", version = "0.1.0" }
 keyring.workspace = true
 notify-rust.workspace = true
 png.workspace = true

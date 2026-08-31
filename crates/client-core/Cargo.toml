@@ -9,8 +9,8 @@ rust-version.workspace = true
 aes-gcm.workspace = true
 chrono.workspace = true
 data-encoding.workspace = true
-iamrust-domain = { path = "../domain" }
-iamrust-protocol = { path = "../protocol" }
+iamrust-domain = { path = "../domain", version = "0.1.0" }
+iamrust-protocol = { path = "../protocol", version = "0.1.0" }
 keyring.workspace = true
 rand.workspace = true
 serde.workspace = true
@@ -20,7 +20,7 @@ tokio.workspace = true
 uuid.workspace = true
 
 [dev-dependencies]
-iamrust-test-support = { path = "../test-support" }
+iamrust-test-support = { path = "../test-support", version = "0.1.0" }
 tempfile = "3.27.0"
 
 [lints]
