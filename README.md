@@ -20,7 +20,7 @@ v0.1 刻意不包含语音/视频通话、完整富媒体编辑器、移动端�
 
 ## 快速开始
 
-要求：Rust 1.98；完整本地服务还需要 Docker。Node.js 24 与 pnpm 11.19 仅用于保留的旧版 Web UI 测试和 Playwright 质量门禁。
+要求：Rust 1.98；完整本地服务还需要 Docker。
 
 ```bash
 cp .env.example .env
@@ -31,9 +31,7 @@ cargo run -p iamrust-server --bin iamrust-server
 另开一个终端启动原生客户端：
 
 ```bash
-cargo run -p iamrust-desktop-gpui
-# 或
-pnpm dev:desktop
+cargo run -p iamrust-desktop
 ```
 
 客户端默认连接 `http://127.0.0.1:3780`。也可使用 `IAMRUST_API_URL` 指向另一个开发服务。
@@ -41,9 +39,9 @@ pnpm dev:desktop
 ## 构建与打包
 
 ```bash
-cargo build --release -p iamrust-desktop-gpui
+cargo build --release -p iamrust-desktop
 cargo install cargo-packager --version 0.11.8 --locked
-cargo packager --release --packages iamrust-desktop-gpui
+cargo packager --release --packages iamrust-desktop
 ```
 
 产物写入 `dist/`。macOS 本地自动化若遇到 Finder 忙碌，可使用 `CI=true cargo packager ...`；CI 会自动设置该环境。未配置发行证书时生成的是未签名候选包。
@@ -51,30 +49,20 @@ cargo packager --release --packages iamrust-desktop-gpui
 ## 质量门禁
 
 ```bash
-pnpm install --frozen-lockfile
-pnpm format:check
-pnpm lint
-pnpm test
-pnpm test:e2e
-pnpm build
-```
-
-原生客户端的重点门禁也可单独运行：
-
-```bash
-cargo clippy -p iamrust-client-core -p iamrust-desktop-gpui --all-targets -- -D warnings
-cargo test -p iamrust-client-core -p iamrust-desktop-gpui
+cargo fmt --all --check
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo test --workspace --all-targets
+cargo build --workspace --locked
 ```
 
 ## 项目结构
 
-- `apps/desktop-gpui`：当前原生 GPUI 桌面客户端
+- `apps/desktop`：唯一的原生 GPUI 桌面客户端
 - `crates/client-core`：加密缓存、草稿、同步游标与 outbox
 - `apps/server`：Axum REST/WebSocket 服务和 `iamrust-admin` CLI
 - `crates/domain`：领域模型与规则
 - `crates/application`：服务端用例与权限边界
 - `crates/protocol`：版本化 REST/WebSocket DTO
-- `apps/desktop`：仅保留为旧版 React/Tauri UI 参考和浏览器测试夹具，不是发行客户端
 - `migrations`：PostgreSQL 迁移
 - `docs`：架构、验收、安全、运维与发布文档
 

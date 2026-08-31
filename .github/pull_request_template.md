@@ -4,9 +4,9 @@ Describe the user-visible outcome and linked issue.
 
 ## Verification
 
-- [ ] `pnpm format:check`
-- [ ] `pnpm lint`
-- [ ] `pnpm test`
+- [ ] `cargo fmt --all --check`
+- [ ] `cargo clippy --workspace --all-targets --all-features -- -D warnings`
+- [ ] `cargo test --workspace --all-targets`
 - [ ] Relevant manual accessibility and platform checks
 
 ## Risk and rollback

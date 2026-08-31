@@ -3,7 +3,7 @@
 ## 候选版流程
 
 1. 将 workspace 版本更新为目标语义化版本，同步 `CHANGELOG.md` 与协议兼容说明。
-2. 运行完整格式化、Clippy、测试、旧版 Web 回归、迁移恢复和 release build 门禁。
+2. 运行完整格式化、Clippy、Rust 测试、迁移恢复和 release build 门禁。
 3. 本地至少验证当前平台的安装包；按 [平台矩阵](./PLATFORM_MATRIX.md) 记录所有目标系统的人工冒烟。
 4. 创建并推送已经存在的 `vX.Y.Z` 标签，或在 Release workflow 中选择该标签手动运行。
 5. 工作流用 cargo-packager 0.11.8 构建：
@@ -17,7 +17,7 @@
 
 ```bash
 cargo install cargo-packager --version 0.11.8 --locked
-cargo packager --release --packages iamrust-desktop-gpui
+cargo packager --release --packages iamrust-desktop
 ```
 
 macOS 自动化环境使用 `CI=true`，让 DMG 工具跳过依赖 Finder 交互的布局步骤。

@@ -59,7 +59,7 @@ jobs:
       - name: Install cargo-packager
         run: cargo install cargo-packager --version 0.11.8 --locked
       - name: Build native installers
-        run: cargo packager --release --packages iamrust-desktop-gpui --formats ${{ matrix.formats }}
+        run: cargo packager --release --packages iamrust-desktop --formats ${{ matrix.formats }}
       - name: Archive macOS application bundle
         if: runner.os == 'macOS'
         shell: bash

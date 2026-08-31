@@ -1,12 +1,12 @@
 [package]
-name = "iamrust-desktop-gpui"
+name = "iamrust-desktop"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
 
 [[bin]]
-name = "i-am-rust-gpui"
+name = "i-am-rust"
 path = "src/main.rs"
 
 [dependencies]
@@ -47,11 +47,11 @@ publisher = "I Am Rust"
 description = "A native, cross-platform instant messaging desktop application built with Rust and GPUI."
 long-description = "I Am Rust is an open-source desktop instant messaging client with accounts, friends, direct and group conversations, durable offline sending, native notifications, and local encrypted storage."
 category = "SocialNetworking"
-before-packaging-command = { script = "cargo build --release -p iamrust-desktop-gpui", dir = "../.." }
+before-packaging-command = { script = "cargo build --release -p iamrust-desktop", dir = "../.." }
 out-dir = "../../dist"
 icons = ["../../assets/branding/iamrust-icon-512.png"]
 license-file = "../../LICENSE-MIT"
-binaries = [{ path = "i-am-rust-gpui", main = true }]
+binaries = [{ path = "i-am-rust", main = true }]
 
 [package.metadata.packager.macos]
 minimum-system-version = "15.0"

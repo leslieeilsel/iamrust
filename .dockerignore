@@ -1,12 +1,7 @@
 .git
 .github
-node_modules
 target
-apps/desktop/dist
-apps/desktop/src-tauri/target
 *.db
 *.log
 .env
 coverage
-playwright-report
-test-results

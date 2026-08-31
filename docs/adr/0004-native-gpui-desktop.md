@@ -8,4 +8,4 @@
 
 客户端平台能力分别通过小型适配层实现：`tray-icon` 负责托盘，`notify-rust` 负责系统通知，`single-instance` 负责单实例，`keyring` 负责凭据，cargo-packager 负责安装包。SQLite 客户端核心独立为 `iamrust-client-core`，保存缓存、草稿、游标和持久化 outbox，并提供可选 AES-256-GCM 内容加密。
 
-代价是原生 UI 生态与自动化能力不如浏览器成熟，Windows/Linux 的输入法、无障碍和桌面环境差异需要真实系统冒烟。旧版 React/Tauri 代码只保留为视觉参考和浏览器测试夹具，不再作为发行入口。
+代价是原生 UI 生态与自动化能力不如浏览器成熟，Windows/Linux 的输入法、无障碍和桌面环境差异需要真实系统冒烟。被替代的桌面客户端源码与前端工具链已经删除，仓库只维护 GPUI 客户端。

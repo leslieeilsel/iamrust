@@ -4,11 +4,9 @@ WORKDIR /workspace
 COPY Cargo.toml Cargo.lock rust-toolchain.toml rustfmt.toml ./
 COPY crates ./crates
 COPY apps/server ./apps/server
-COPY apps/desktop/src-tauri/Cargo.toml ./apps/desktop/src-tauri/Cargo.toml
-RUN mkdir -p apps/desktop/src-tauri/src && \
-    printf 'fn main() {}\n' > apps/desktop/src-tauri/src/main.rs && \
-    printf 'pub fn run() {}\n' > apps/desktop/src-tauri/src/lib.rs && \
-    printf 'fn main() {}\n' > apps/desktop/src-tauri/build.rs
+COPY apps/desktop/Cargo.toml ./apps/desktop/Cargo.toml
+RUN mkdir -p apps/desktop/src && \
+    printf 'fn main() {}\n' > apps/desktop/src/main.rs
 RUN cargo build --locked --release -p iamrust-server
 
 FROM debian:bookworm-slim AS runtime

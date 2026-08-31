@@ -6,7 +6,7 @@
 
 - [x] 确定产品名 **I Am Rust**、应用标识 `app.iamrust.desktop` 与黑白透明品牌图标
 - [x] 将主桌面客户端改为 Rust 原生 **GPUI + gpui-component**，不依赖 WebView
-- [x] 固定 Rust 1.98、Cargo.lock 与 pnpm lockfile
+- [x] 固定 Rust 1.98 与 Cargo.lock
 - [x] 建立 Cargo workspace、统一格式化、Clippy、测试与构建命令
 - [x] 建立 Axum 模块化服务、PostgreSQL 迁移、MinIO 与本地 Compose 环境
 - [x] 建立领域、应用、协议、客户端核心与测试支持 crates
@@ -91,7 +91,7 @@
 - [x] 为发布产物配置 SHA-256 校验和与 SPDX SBOM
 - [x] 在 macOS Apple Silicon 生成并验证 `.app` 与 DMG 候选包
 - [x] 验证打包后的应用可启动、保持单实例并消费激活请求
-- [x] 保留旧版 Web 测试作为历史流程回归，并明确其不是发行客户端
+- [x] 移除旧版 Web/Tauri 客户端及其 TSX、pnpm 和 Playwright 工具链
 - [x] 更新 README、ADR、技术栈、测试、威胁模型、平台矩阵与发布说明
 
 ## v0.1 明确不做

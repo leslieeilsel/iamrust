@@ -1,6 +1,6 @@
 # I Am Rust 技术栈与架构
 
-状态：v0.1 已采用原生 GPUI 客户端。此前的 Tauri + React 客户端已被 ADR 0004 替代，仅保留为视觉参考与浏览器测试夹具。
+状态：v0.1 只保留原生 GPUI 客户端。此前的 WebView 桌面方案已被 ADR 0004 替代，相关客户端源码和前端工具链均已移除。
 
 ## 1. 设计目标
 
@@ -59,7 +59,6 @@ GPUI 的平台事件循环保持在主线程；网络、SQLite 和耗时操作�
 - GitHub Actions：格式化、Clippy、测试、依赖策略、迁移恢复和三平台原生构建
 - cargo-packager：Linux AppImage/Deb、Windows NSIS、macOS App/DMG
 - 发布草稿：SHA-256 校验和与 SPDX JSON SBOM
-- 旧版 React/Vitest/Playwright：只承担历史 UI 回归与无障碍测试，不是发行客户端
 
 ## 6. MVP 消息路径
 
@@ -86,8 +85,7 @@ GPUI 的平台事件循环保持在主线程；网络、SQLite 和耗时操作�
 ```text
 I-Am-Rust/
 ├── apps/
-│   ├── desktop-gpui/          # 当前原生桌面客户端
-│   ├── desktop/               # 旧版 Web/Tauri 参考与测试夹具
+│   ├── desktop/               # 唯一的原生 GPUI 桌面客户端
 │   └── server/                # Axum 模块化单体
 ├── crates/
 │   ├── client-core/           # SQLite 缓存、加密、草稿和 outbox

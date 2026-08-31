@@ -35,7 +35,7 @@
 ## 质量与候选包
 
 1. `cargo fmt --all --check`、严格 Clippy、Rust 测试和 release build 通过。
-2. 保留的旧版 Web 类型检查、Lint、单测和 Playwright 回归通过；这些测试不替代原生 UI 人工验收。
+2. GPUI 的键盘、焦点、中文输入、无障碍与桌面集成通过真实系统人工验收。
 3. 数据库迁移、备份与恢复脚本通过；依赖策略没有阻断问题。
 4. Release workflow 能生成目标平台候选包、SHA-256 校验和和 SPDX SBOM。
 5. 未签名候选包必须明确标注，未完成真实平台冒烟前不得提升为稳定版。

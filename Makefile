@@ -1,16 +1,16 @@
-.PHONY: dev dev-desktop build-desktop package-desktop dev-infra dev-infra-full dev-infra-down migrate seed check test lint format build
+.PHONY: dev dev-desktop build-desktop package-desktop dev-infra dev-infra-full dev-infra-down migrate seed check test lint format format-check build
 
 dev:
-	pnpm dev
+	cargo run -p iamrust-desktop
 
 dev-desktop:
-	pnpm dev:desktop
+	cargo run -p iamrust-desktop
 
 build-desktop:
-	pnpm build:desktop
+	cargo build --release -p iamrust-desktop
 
 package-desktop:
-	pnpm package:desktop
+	cargo packager --release --packages iamrust-desktop
 
 dev-infra:
 	docker compose up -d postgres minio minio-init mailpit
@@ -28,16 +28,19 @@ seed:
 	./scripts/seed-dev.sh
 
 check:
-	pnpm check
+	cargo check --workspace --all-targets
 
 test:
-	pnpm test
+	cargo test --workspace --all-targets
 
 lint:
-	pnpm lint
+	cargo clippy --workspace --all-targets --all-features -- -D warnings
 
 format:
-	pnpm format
+	cargo fmt --all
+
+format-check:
+	cargo fmt --all --check
 
 build:
-	pnpm build
+	cargo build --workspace

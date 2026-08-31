@@ -12,6 +12,11 @@
 - 原生通知、隐私预览、托盘、关闭到托盘、窗口恢复和单实例唤醒。
 - cargo-packager 三平台候选包、SHA-256 校验和与 SPDX SBOM 发布工作流。
 
+### Changed
+
+- 原生 GPUI 客户端统一为 `apps/desktop` 和 `iamrust-desktop`。
+- 删除被替代的 WebView 客户端以及 TSX、pnpm、Vite、Vitest 和 Playwright 工具链。
+
 ### Security
 
 - Argon2id 密码哈希、轮换刷新令牌与复用检测。
