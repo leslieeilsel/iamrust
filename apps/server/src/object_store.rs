@@ -2,7 +2,7 @@ use std::fmt::{self, Write};
 
 use anyhow::{Context, ensure};
 use chrono::{DateTime, Utc};
-use hmac::{Hmac, Mac};
+use hmac::{Hmac, KeyInit as _, Mac};
 use sha2::{Digest, Sha256};
 use url::Url;
 

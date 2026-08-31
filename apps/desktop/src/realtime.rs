@@ -3,7 +3,7 @@ use std::{sync::Arc, time::Duration};
 use futures_util::{SinkExt as _, StreamExt as _};
 use iamrust_domain::{ConversationId, SyncEvent, UserId};
 use iamrust_protocol::{CallSignal, ClientFrame, ServerFrame, WS_PROTOCOL_VERSION};
-use rand::Rng as _;
+use rand::RngExt as _;
 use tokio::{
     runtime::Runtime,
     sync::mpsc,

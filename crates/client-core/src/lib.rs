@@ -5,12 +5,15 @@ use std::{
     time::Duration,
 };
 
-use aes_gcm::{Aes256Gcm, KeyInit, Nonce, aead::Aead};
+use aes_gcm::{
+    Aes256Gcm, KeyInit,
+    aead::{Aead, Nonce},
+};
 use chrono::Utc;
 use data_encoding::BASE64URL_NOPAD;
 use iamrust_domain::{ConversationKind, Message, SyncEvent};
 use iamrust_protocol::BootstrapResponse;
-use rand::{Rng as _, RngCore};
+use rand::{Rng as _, RngExt as _};
 use serde::{Serialize, de::DeserializeOwned};
 use sqlx::{
     Row, Sqlite, SqlitePool, Transaction,
@@ -1082,8 +1085,9 @@ fn protect(value: &str, key: Option<&[u8; 32]>) -> Result<String, String> {
         .map_err(|_| "local encryption initialization failed".to_owned())?;
     let mut nonce = [0_u8; 12];
     rand::rng().fill_bytes(&mut nonce);
+    let nonce_array: &Nonce<Aes256Gcm> = (&nonce).into();
     let ciphertext = cipher
-        .encrypt(Nonce::from_slice(&nonce), value.as_bytes())
+        .encrypt(nonce_array, value.as_bytes())
         .map_err(|_| "failed to encrypt local content".to_owned())?;
     let mut payload = Vec::with_capacity(nonce.len() + ciphertext.len());
     payload.extend_from_slice(&nonce);
@@ -1107,10 +1111,14 @@ fn unprotect(value: &str, key: Option<&[u8; 32]>) -> Result<String, String> {
         return Err("encrypted local content is invalid".to_owned());
     }
     let (nonce, ciphertext) = payload.split_at(12);
+    let nonce: &[u8; 12] = nonce
+        .try_into()
+        .map_err(|_| "encrypted local content is invalid".to_owned())?;
+    let nonce: &Nonce<Aes256Gcm> = nonce.into();
     let cipher = Aes256Gcm::new_from_slice(key)
         .map_err(|_| "local decryption initialization failed".to_owned())?;
     let plaintext = cipher
-        .decrypt(Nonce::from_slice(nonce), ciphertext)
+        .decrypt(nonce, ciphertext)
         .map_err(|_| "failed to decrypt local content".to_owned())?;
     String::from_utf8(plaintext).map_err(|_| "decrypted local content is invalid".to_owned())
 }
@@ -1389,5 +1397,17 @@ mod tests {
             "secret message body"
         );
         assert!(unprotect(&encrypted, Some(&[8_u8; 32])).is_err());
+    }
+
+    #[test]
+    fn aes_gcm_0_10_ciphertext_remains_readable() {
+        let key = std::array::from_fn(|index| index.try_into().unwrap());
+        let encrypted = format!(
+            "{ENCRYPTED_PREFIX}AAECAwQFBgcICQoLK2exeqac73jsIv_unJ8ZAfaz9vYhPx3US990dpcoEGlv1w"
+        );
+        assert_eq!(
+            unprotect(&encrypted, Some(&key)).unwrap(),
+            "legacy-cache-value"
+        );
     }
 }

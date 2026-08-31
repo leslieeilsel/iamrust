@@ -339,10 +339,10 @@ pub fn activate_main_window(cx: &mut App) {
 }
 
 pub fn configure_close_to_tray(window: &gpui::Window, cx: &App) {
-    window.on_window_should_close(cx, |window, cx| {
+    window.on_window_should_close(cx, |window, _cx| {
         window.minimize_window();
         #[cfg(target_os = "macos")]
-        cx.hide();
+        _cx.hide();
         false
     });
 }

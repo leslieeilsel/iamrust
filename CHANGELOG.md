@@ -16,6 +16,7 @@
 
 - 原生 GPUI 客户端统一为 `apps/desktop` 和 `iamrust-desktop`。
 - 删除被替代的 WebView 客户端以及 TSX、pnpm、Vite、Vitest 和 Playwright 工具链。
+- 升级 Argon2、AES-GCM、Rand、SHA、HMAC 与 WebSocket 依赖，并保持旧密码哈希和本地密文可读取。
 
 ### Security
 

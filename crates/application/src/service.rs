@@ -4,8 +4,14 @@ use std::{
     sync::Arc,
 };
 
-use aes_gcm::{Aes256Gcm, KeyInit, Nonce, aead::Aead};
-use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier, password_hash::SaltString};
+use aes_gcm::{
+    Aes256Gcm, KeyInit,
+    aead::{Aead, Nonce},
+};
+use argon2::{
+    Argon2,
+    password_hash::{PasswordHasher, PasswordVerifier, phc::PasswordHash},
+};
 use chrono::{DateTime, Duration, NaiveDate, Utc};
 use data_encoding::BASE32_NOPAD;
 use hmac::{Hmac, Mac};
@@ -28,7 +34,7 @@ use iamrust_protocol::{
     UpdateConversationSettingsRequest, UpdateFriendSettingsRequest, UpdateGroupMemberRequest,
     UpdateGroupRequest, VoteGroupPollRequest,
 };
-use rand::RngCore;
+use rand::Rng as _;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sha1::Sha1;
@@ -4684,10 +4690,8 @@ fn require_role_at_least(
 }
 
 fn hash_password(password: &str) -> Result<String, ApplicationError> {
-    let salt = SaltString::encode_b64(Uuid::new_v4().as_bytes())
-        .map_err(|_| ApplicationError::InvalidCredentials)?;
     Argon2::default()
-        .hash_password(password.as_bytes(), &salt)
+        .hash_password(password.as_bytes())
         .map(|hash| hash.to_string())
         .map_err(|_| ApplicationError::InvalidCredentials)
 }
@@ -4738,8 +4742,9 @@ fn encrypt_secret(key: &[u8; 32], plaintext: &[u8]) -> Result<Vec<u8>, Applicati
     let cipher = Aes256Gcm::new_from_slice(key).map_err(|_| ApplicationError::Storage)?;
     let mut nonce_bytes = [0_u8; 12];
     rand::rng().fill_bytes(&mut nonce_bytes);
+    let nonce: &Nonce<Aes256Gcm> = (&nonce_bytes).into();
     let ciphertext = cipher
-        .encrypt(Nonce::from_slice(&nonce_bytes), plaintext)
+        .encrypt(nonce, plaintext)
         .map_err(|_| ApplicationError::Storage)?;
     let mut encrypted = Vec::with_capacity(nonce_bytes.len() + ciphertext.len());
     encrypted.extend_from_slice(&nonce_bytes);
@@ -4752,8 +4757,12 @@ fn decrypt_secret(key: &[u8; 32], encrypted: &[u8]) -> Result<Vec<u8>, Applicati
         return Err(ApplicationError::Storage);
     }
     let cipher = Aes256Gcm::new_from_slice(key).map_err(|_| ApplicationError::Storage)?;
+    let nonce_bytes: &[u8; 12] = encrypted[..12]
+        .try_into()
+        .map_err(|_| ApplicationError::Storage)?;
+    let nonce: &Nonce<Aes256Gcm> = nonce_bytes.into();
     cipher
-        .decrypt(Nonce::from_slice(&encrypted[..12]), &encrypted[12..])
+        .decrypt(nonce, &encrypted[12..])
         .map_err(|_| ApplicationError::Storage)
 }
 
@@ -4772,8 +4781,8 @@ fn verify_totp(secret: &[u8], code: &str, now: DateTime<Utc>) -> bool {
 }
 
 fn totp_code(secret: &[u8], counter: u64) -> String {
-    let mut mac =
-        <Hmac<Sha1> as Mac>::new_from_slice(secret).expect("HMAC accepts secrets of any size");
+    let mut mac = <Hmac<Sha1> as hmac::KeyInit>::new_from_slice(secret)
+        .expect("HMAC accepts secrets of any size");
     mac.update(&counter.to_be_bytes());
     let digest = mac.finalize().into_bytes();
     let offset = usize::from(digest[digest.len() - 1] & 0x0f);
@@ -5283,6 +5292,13 @@ mod tests {
             platform: "test".to_owned(),
             app_version: "0.1.0".to_owned(),
         }
+    }
+
+    #[test]
+    fn argon2_0_5_password_hashes_remain_valid() {
+        let legacy_hash = "$argon2id$v=19$m=65536,t=2,p=1$c29tZXNhbHQ$CTFhFdXPJO1aFaMaO6Mm5c8y7cJHAph8ArZWb2GRPPc";
+        assert!(verify_password("password", legacy_hash));
+        assert!(!verify_password("wrong-password", legacy_hash));
     }
 
     #[tokio::test]
