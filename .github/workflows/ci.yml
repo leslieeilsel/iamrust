@@ -54,12 +54,16 @@ jobs:
           --health-retries 20
     steps:
       - uses: actions/checkout@v4
-      - name: Install PostgreSQL 17 client
-        run: sudo apt-get update && sudo apt-get install -y postgresql-client-17
       - name: Verify fresh migration, previous-version upgrade, backup and restore
         env:
           IAMRUST_POSTGRES_ADMIN_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
-        run: PATH="/usr/lib/postgresql/17/bin:$PATH" ./scripts/test-migrations.sh
+        run: >-
+          docker run --rm --network host
+          --env IAMRUST_POSTGRES_ADMIN_URL
+          --volume "$PWD:/workspace"
+          --workdir /workspace
+          postgres:17-alpine
+          ./scripts/test-migrations.sh
 
   dependency-review:
     if: github.event_name == 'pull_request'
