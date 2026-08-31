@@ -1,0 +1,125 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing vX.Y.Z tag to package
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
+
+jobs:
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            formats: appimage,deb
+            artifact: desktop-linux-x86_64
+            arch: linux-x86_64
+          - os: windows-2025
+            formats: nsis
+            artifact: desktop-windows-x86_64
+            arch: windows-x86_64
+          - os: macos-15
+            formats: app,dmg
+            artifact: desktop-macos-aarch64
+            arch: macos-aarch64
+          - os: macos-15-intel
+            formats: app,dmg
+            artifact: desktop-macos-x86_64
+            arch: macos-x86_64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.98.0
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Linux GPUI and packaging dependencies
+        if: runner.os == 'Linux'
+        run: >-
+          sudo apt-get update && sudo apt-get install -y
+          libgtk-3-dev libayatana-appindicator3-dev libxdo-dev libxkbcommon-x11-dev
+          libfontconfig1-dev libwayland-dev libx11-xcb-dev libxcb1-dev
+          libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libvulkan-dev
+          fuse libfuse2 librsvg2-dev patchelf
+      - name: Install cargo-packager
+        run: cargo install cargo-packager --version 0.11.8 --locked
+      - name: Build native installers
+        run: cargo packager --release --packages iamrust-desktop-gpui --formats ${{ matrix.formats }}
+      - name: Archive macOS application bundle
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          for app in dist/*.app; do
+            test -d "$app" || continue
+            ditto -c -k --sequesterRsrc --keepParent "$app" "dist/I-Am-Rust-${{ matrix.arch }}.app.zip"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          if-no-files-found: error
+          path: |
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.exe
+            dist/*.msi
+            dist/*.dmg
+            dist/*.zip
+
+  publish-draft:
+    needs: desktop
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: desktop-*
+          path: release-assets
+          merge-multiple: true
+      - uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          output-file: iamrust-sbom.spdx.json
+      - name: Generate checksums
+        shell: bash
+        run: |
+          cp iamrust-sbom.spdx.json release-assets/
+          find release-assets -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+      - name: Create or update draft release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          case "$RELEASE_TAG" in
+            v[0-9]*.[0-9]*.[0-9]*) ;;
+            *) echo "release tag must look like vX.Y.Z" >&2; exit 1 ;;
+          esac
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release edit "$RELEASE_TAG" --draft --title "I Am Rust $RELEASE_TAG" --notes-file CHANGELOG.md
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --draft --title "I Am Rust $RELEASE_TAG" --notes-file CHANGELOG.md
+          fi
+          gh release upload "$RELEASE_TAG" SHA256SUMS --clobber
+          while IFS= read -r -d '' asset; do
+            gh release upload "$RELEASE_TAG" "$asset" --clobber
+          done < <(find release-assets -type f -print0)

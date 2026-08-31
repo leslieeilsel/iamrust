@@ -1,0 +1,27 @@
+[package]
+name = "iamrust-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+iamrust-protocol = { path = "../crates/protocol" }
+libfuzzer-sys = "0.4"
+serde_json = "1"
+
+[[bin]]
+name = "protocol_frames"
+path = "fuzz_targets/protocol_frames.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "upload_metadata"
+path = "fuzz_targets/upload_metadata.rs"
+test = false
+doc = false
+bench = false

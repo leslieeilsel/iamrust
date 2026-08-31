@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>I Am Rust 管理台</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: system-ui, sans-serif;
+        background: #111;
+        color: #eee;
+      }
+      body {
+        width: min(920px, calc(100% - 32px));
+        margin: 40px auto;
+      }
+      header,
+      section {
+        border: 1px solid #444;
+        padding: 20px;
+        background: #191919;
+      }
+      header {
+        margin-bottom: 16px;
+      }
+      h1,
+      h2 {
+        margin-top: 0;
+      }
+      form,
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr auto auto auto;
+        gap: 10px;
+      }
+      input,
+      button {
+        min-height: 42px;
+        border: 1px solid #555;
+        padding: 0 12px;
+        color: inherit;
+        background: #242424;
+      }
+      button {
+        cursor: pointer;
+      }
+      button.danger {
+        background: #722;
+      }
+      #status {
+        min-height: 24px;
+        color: #c8d8c8;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 18px;
+        font-size: 14px;
+      }
+      th,
+      td {
+        border-bottom: 1px solid #3a3a3a;
+        padding: 9px;
+        text-align: left;
+        overflow-wrap: anywhere;
+      }
+      @media (max-width: 720px) {
+        form,
+        .actions {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>I Am Rust 管理台</h1>
+      <p>管理令牌仅保存在当前页面内存中。完成操作后请关闭页面。</p>
+      <label
+        >管理令牌 <input id="token" type="password" autocomplete="off"
+      /></label>
+    </header>
+    <section>
+      <h2>账号与会话</h2>
+      <form id="user-form">
+        <input
+          id="user-id"
+          required
+          placeholder="用户 UUID"
+          aria-label="用户 UUID"
+        />
+        <button type="button" class="danger" data-action="suspend">封禁</button>
+        <button type="button" data-action="restore">解封</button>
+        <button type="button" data-action="revoke">撤销会话</button>
+      </form>
+      <p id="status" role="status" aria-live="polite"></p>
+      <div class="actions">
+        <button id="load-audit" type="button">刷新审计记录</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>时间</th>
+            <th>动作</th>
+            <th>目标</th>
+            <th>结果</th>
+          </tr>
+        </thead>
+        <tbody id="audit"></tbody>
+      </table>
+    </section>
+    <script>
+      const token = document.querySelector("#token");
+      const userId = document.querySelector("#user-id");
+      const status = document.querySelector("#status");
+      const audit = document.querySelector("#audit");
+      async function request(path, options = {}) {
+        const response = await fetch(path, {
+          ...options,
+          headers: {
+            "content-type": "application/json",
+            "x-admin-token": token.value,
+          },
+        });
+        if (!response.ok) throw new Error(`请求失败（${response.status}）`);
+        return response.status === 204 ? null : response.json();
+      }
+      document
+        .querySelector("#user-form")
+        .addEventListener("click", async (event) => {
+          const action = event.target.dataset.action;
+          if (!action || !userId.reportValidity()) return;
+          status.textContent = "正在处理…";
+          try {
+            if (action === "revoke") {
+              await request(
+                `/api/v1/admin/users/${encodeURIComponent(userId.value)}/sessions/revoke`,
+                { method: "POST" },
+              );
+            } else {
+              await request(
+                `/api/v1/admin/users/${encodeURIComponent(userId.value)}/suspension`,
+                {
+                  method: "POST",
+                  body: JSON.stringify({ suspended: action === "suspend" }),
+                },
+              );
+            }
+            status.textContent = "操作已完成。";
+          } catch (error) {
+            status.textContent = error.message;
+          }
+        });
+      document
+        .querySelector("#load-audit")
+        .addEventListener("click", async () => {
+          status.textContent = "正在加载…";
+          try {
+            const entries = await request("/api/v1/admin/audit?limit=200");
+            audit.replaceChildren(
+              ...entries.map((entry) => {
+                const row = document.createElement("tr");
+                [
+                  new Date(entry.created_at).toLocaleString(),
+                  entry.action,
+                  entry.target_user_id || "—",
+                  entry.outcome,
+                ].forEach((value) => {
+                  const cell = document.createElement("td");
+                  cell.textContent = value;
+                  row.append(cell);
+                });
+                return row;
+              }),
+            );
+            status.textContent = `已加载 ${entries.length} 条记录。`;
+          } catch (error) {
+            status.textContent = error.message;
+          }
+        });
+    </script>
+  </body>
+</html>

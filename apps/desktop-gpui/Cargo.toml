@@ -1,0 +1,72 @@
+[package]
+name = "iamrust-desktop-gpui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "i-am-rust-gpui"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+chrono.workspace = true
+futures-util.workspace = true
+gpui.workspace = true
+gpui-component.workspace = true
+iamrust-client-core = { path = "../../crates/client-core" }
+iamrust-domain = { path = "../../crates/domain" }
+iamrust-protocol = { path = "../../crates/protocol" }
+keyring.workspace = true
+notify-rust.workspace = true
+png.workspace = true
+rand.workspace = true
+reqwest = { workspace = true, features = ["blocking"] }
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+single-instance.workspace = true
+thiserror.workspace = true
+tempfile = "3.27.0"
+tokio.workspace = true
+tokio-tungstenite.workspace = true
+tray-icon.workspace = true
+url.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+axum.workspace = true
+tokio.workspace = true
+
+[package.metadata.packager]
+product-name = "I Am Rust"
+identifier = "app.iamrust.desktop"
+authors = ["I Am Rust contributors"]
+publisher = "I Am Rust"
+description = "A native, cross-platform instant messaging desktop application built with Rust and GPUI."
+long-description = "I Am Rust is an open-source desktop instant messaging client with accounts, friends, direct and group conversations, durable offline sending, native notifications, and local encrypted storage."
+category = "SocialNetworking"
+before-packaging-command = { script = "cargo build --release -p iamrust-desktop-gpui", dir = "../.." }
+out-dir = "../../dist"
+icons = ["../../assets/branding/iamrust-icon-512.png"]
+license-file = "../../LICENSE-MIT"
+binaries = [{ path = "i-am-rust-gpui", main = true }]
+
+[package.metadata.packager.macos]
+minimum-system-version = "15.0"
+
+[package.metadata.packager.deb]
+depends = [
+  "libgtk-3-0",
+  "libayatana-appindicator3-1 | libappindicator3-1",
+  "libxdo3",
+  "libxkbcommon-x11-0",
+  "libfontconfig1",
+  "libvulkan1",
+  "libwayland-client0",
+  "libxcb1",
+]
+
+[lints]
+workspace = true

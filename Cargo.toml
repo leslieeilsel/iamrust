@@ -1,0 +1,82 @@
+[workspace]
+members = [
+  "apps/desktop-gpui",
+  "apps/desktop/src-tauri",
+  "apps/server",
+  "crates/application",
+  "crates/client-core",
+  "crates/domain",
+  "crates/protocol",
+  "crates/test-support",
+]
+resolver = "3"
+exclude = ["fuzz"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+rust-version = "1.98"
+
+[workspace.dependencies]
+anyhow = "1.0.100"
+aes-gcm = "0.10.3"
+argon2 = "0.5.3"
+async-trait = "0.1.89"
+axum = { version = "0.8.9", features = ["json", "macros", "multipart", "ws"] }
+chrono = { version = "0.4.42", features = ["serde"] }
+data-encoding = "2.9.0"
+futures-util = "0.3.31"
+gpui = { version = "0.2.2", features = ["runtime_shaders"] }
+gpui-component = "0.5.1"
+hmac = "0.12.1"
+http = "1.3.1"
+jsonwebtoken = { version = "11.0.0", default-features = false, features = ["aws_lc_rs"] }
+keyring = "4.2.0"
+lettre = { version = "0.11.23", default-features = false, features = ["builder", "hostname", "pool", "smtp-transport", "tokio1-rustls-tls"] }
+mime = "0.3.17"
+notify-rust = "4.18.0"
+opentelemetry = { version = "0.32.0", default-features = false, features = ["trace"] }
+opentelemetry-otlp = { version = "0.32.0", default-features = false, features = ["http-proto", "reqwest-blocking-client", "trace"] }
+opentelemetry_sdk = { version = "0.32.0", default-features = false, features = ["trace"] }
+rand = "0.9.2"
+regex = "1.12.2"
+reqwest = { version = "0.13.4", default-features = false, features = ["json", "multipart", "rustls"] }
+rmp-serde = "1.3.0"
+png = "0.18.1"
+secrecy = { version = "0.10.3", features = ["serde"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+sha2 = "0.10.9"
+sha1 = "0.10.6"
+single-instance = "0.3.3"
+sqlx = { version = "0.9.0", default-features = false, features = ["chrono", "derive", "macros", "migrate", "postgres", "runtime-tokio", "sqlite", "tls-rustls-ring", "uuid"] }
+thiserror = "2.0.17"
+tokio = { version = "1.48.0", features = ["full"] }
+tokio-tungstenite = { version = "0.29.0", features = ["rustls-tls-webpki-roots"] }
+tower = { version = "0.5.2", features = ["util"] }
+tower-http = { version = "0.7.0", features = ["cors", "limit", "request-id", "sensitive-headers", "timeout", "trace"] }
+tray-icon = "0.24.2"
+tracing = "0.1.41"
+tracing-opentelemetry = "0.33.0"
+tracing-subscriber = { version = "0.3.20", features = ["env-filter", "fmt", "json"] }
+url = { version = "2.5.7", features = ["serde"] }
+utoipa = { version = "5.5.0", features = ["axum_extras", "chrono", "uuid"] }
+uuid = { version = "1.26.0", features = ["serde", "v4", "v7"] }
+validator = { version = "0.20.0", features = ["derive"] }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "warn"
+unused_must_use = "deny"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+assigning_clones = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+needless_pass_by_value = "allow"
+similar_names = "allow"

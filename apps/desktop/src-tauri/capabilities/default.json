@@ -1,0 +1,16 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Minimum permissions required by the main I Am Rust window.",
+  "windows": ["main", "chat-*"],
+  "permissions": [
+    "core:default",
+    "notification:default",
+    "autostart:default",
+    "dialog:allow-open",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister",
+    "updater:default",
+    "process:allow-restart"
+  ]
+}
