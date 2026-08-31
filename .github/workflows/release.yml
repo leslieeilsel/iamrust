@@ -68,7 +68,7 @@ jobs:
             test -d "$app" || continue
             ditto -c -k --sequesterRsrc --keepParent "$app" "dist/I-Am-Rust-${{ matrix.arch }}.app.zip"
           done
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
           if-no-files-found: error
