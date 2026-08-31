@@ -19,7 +19,7 @@ rust-version = "1.98"
 
 [workspace.dependencies]
 anyhow = "1.0.100"
-aes-gcm = "0.10.3"
+aes-gcm = "0.11.1"
 argon2 = "0.5.3"
 async-trait = "0.1.89"
 axum = { version = "0.8.9", features = ["json", "macros", "multipart", "ws"] }
